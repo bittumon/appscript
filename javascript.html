@@ -1,0 +1,1395 @@
+<script>
+
+  var whatsappData = {
+    currentMessage: '',
+    recipients: []
+   };
+
+function printRowData(element) {
+    const row = $(element).closest('tr');
+    const table = row.closest('table').DataTable();
+    const rowData = table.row(row).data();
+    printRow(rowData);
+}
+
+
+function printRow(rowData) {
+    if (!rowData) {
+        console.error('Invalid row data');
+        return;
+    }
+
+    const now = new Date();
+    const options = {
+        timeZone: 'Europe/Rome',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    };
+    const currentDateTime = now.toLocaleString('it-IT', options);
+
+    // Create print window content
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write('\
+        <!DOCTYPE html>\
+        <html>\
+            <head>\
+                <title>TCK Manutenzione - ' + rowData[1] + '</title>\
+                <meta charset="UTF-8">\
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">\
+                <style>\
+                    @media print {\
+                        @page { margin: 0.5cm; }\
+                        body { margin: 0; padding: 5px; }\
+                        .no-print { display: none; }\
+                    }\
+                    body {\
+                        font-family: Arial, sans-serif;\
+                        line-height: 1.3;\
+                        color: #333;\
+                        max-width: 100%;\
+                        margin: 0 auto;\
+                        font-size: 9pt;\
+                    }\
+                    table { \
+                        border-collapse: collapse; \
+                        width: 100%; \
+                        margin-bottom: 5px; \
+                    }\
+                    th, td { \
+                        border: 1px solid #ddd; \
+                        padding: 4px; \
+                        text-align: left; \
+                        font-size: 9pt;\
+                    }\
+                    .header-row td { \
+                        background-color: #0e94d4; \
+                        color: white; \
+                        font-weight: bold; \
+                    }\
+                    .section-title { \
+                        background-color: #0e94d4; \
+                        color: white; \
+                        padding: 4px; \
+                        margin-top: 5px; \
+                        margin-bottom: 5px; \
+                        font-size: 10pt;\
+                    }\
+                    /* New grid container styles */\
+                    .grid-container {\
+                        display: grid;\
+                        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));\
+                        gap: 8px;\
+                        padding: 5px;\
+                    }\
+                    /* History item styles */\
+                    .grid-container > div {\
+                        break-inside: avoid;\
+                        font-size: 8pt;\
+                    }\
+                    .grid-container p {\
+                        margin: 2px 0;\
+                    }\
+                    @media print {\
+                        .grid-container {\
+                            display: grid;\
+                            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));\
+                        }\
+                    }\
+                </style>\
+            </head>\
+            <body>\
+                <div class="print-container">\
+                    <div style="text-align: center; margin-bottom: 10px;">\
+                        <img src="https://i.postimg.cc/jqJy4nbb/Copy-of-exmainred.png" width="40" height="40" style="margin-bottom: 5px;">\
+                        <h2 style="margin: 2px 0; font-size: 12pt;">TCK Manutenzione No: ' + rowData[1] + '</h2>\
+                        <p style="color: #666; font-size: 9pt; margin: 2px 0;">Estratto creato il: ' + currentDateTime + '</p>\
+                    </div>\
+                    <table>\
+                        <tr class="header-row">\
+                            <td colspan="4">Dettagli Ticket</td>\
+                        </tr>\
+                        <tr>\
+                            <td style="width: 25%;"><strong>Aperto il</strong></td>\
+                            <td style="width: 25%;">' + rowData[0] + '</td>\
+                            <td style="width: 25%;"><strong>TCK</strong></td>\
+                            <td style="width: 25%;">' + rowData[1] + '</td>\
+                        </tr>\
+                        <tr>\
+                            <td><strong>Impianto</strong></td>\
+                            <td>' + rowData[2] + '</td>\
+                            <td><strong>Priorita</strong></td>\
+                            <td>' + rowData[3] + '</td>\
+                        </tr>\
+                        <tr>\
+                            <td><strong>Resp.Interno</strong></td>\
+                            <td>' + rowData[4] + '</td>\
+                            <td><strong>Scadenza il</strong></td>\
+                            <td>' + rowData[5] + '</td>\
+                        </tr>\
+                        <tr>\
+                            <td><strong>Dispositivi</strong></td>\
+                            <td>' + rowData[6] + '</td>\
+                            <td><strong>Ultimo Agg</strong></td>\
+                            <td>' + rowData[8] + '</td>\
+                        </tr>\
+                        <tr>\
+                            <td><strong>Assegnato</strong></td>\
+                            <td>' + rowData[9] + '</td>\
+                            <td><strong>Stato Imp</strong></td>\
+                            <td>' + rowData[10] + '</td>\
+                        </tr>\
+                        <tr>\
+                            <td><strong>Stato Tck</strong></td>\
+                            <td colspan="3">' + rowData[11] + '</td>\
+                        </tr>\
+                    </table>\
+                    <div class="section-title">Problemi</div>\
+                    <table>\
+                        <tr><td>' + (rowData[7] || 'N/A') + '</td></tr>\
+                    </table>\
+                    <div class="section-title">Istoria</div>\
+                    <table>\
+                        <tr><td>' + (rowData[12] || 'N/A') + '</td></tr>\
+                    </table>\
+                    <div class="section-title">Aggiornamento</div>\
+                    <table>\
+                        <tr><td>' + (rowData[13] || 'N/A') + '</td></tr>\
+                    </table>\
+                    <div class="section-title">Cronologia Aggiornamenti</div>\
+                    <div class="grid-container">' + 
+                    (rowData[14] || 'No history available') +
+                    '</div>\
+                </div>\
+                <script>\
+                    window.onload = function() {\
+                        setTimeout(function() {\
+                            window.print();\
+                            window.onafterprint = function() {\
+                                window.close();\
+                            };\
+                        }, 500);\
+                    };\
+                <\/script>\
+            </body>\
+        </html>\
+    ');
+    printWindow.document.close();
+  }
+
+  
+   
+  // Event listener to reset form when modal is closed
+  $('#modelEdit').on('hidden.bs.modal', function () {
+    resetform(); // Reset the form fields
+  });
+
+
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle category selection
+    document.getElementById('categoryDropdown').addEventListener('change', function() {
+      const category = this.value;
+      if (category) {
+        google.script.run.withSuccessHandler(populateNameDropdown).getNamesByCategory(category);
+      } else {
+        resetNameDropdown();
+      }
+    });
+
+    // Handle name selection
+    document.getElementById('nameDropdown').addEventListener('change', function() {
+      const name = this.value;
+      if (name) {
+        google.script.run.withSuccessHandler(populateEmailField).getEmailByName(name);
+      } else {
+        document.getElementById('emailField').value = '';
+      }
+    });
+
+  });
+
+
+  // Helper functions
+  function populateNameDropdown(names) {
+    const nameDropdown = document.getElementById('nameDropdown');
+    resetNameDropdown();
+    names.forEach(name => {
+      const option = document.createElement('option');
+      option.textContent = name;
+      option.value = name;
+      nameDropdown.appendChild(option);
+    });
+    nameDropdown.disabled = false;
+  }
+
+  function populateEmailField(email) {
+    document.getElementById('emailField').value = email;
+  }
+
+  function resetNameDropdown() {
+    const nameDropdown = document.getElementById('nameDropdown');
+    nameDropdown.innerHTML = '<option value="">-- Select --</option>';
+    nameDropdown.disabled = true;
+  }
+
+  function loadDropdownValues() {
+    google.script.run.withSuccessHandler(function(values) {
+        // Populate Room dropdown (Resp.Interno)
+        const roomSelect = document.getElementById('room');
+        clearOptions(roomSelect);
+        values.roomValues.forEach(value => {
+            if (value) addOption(roomSelect, value);
+        });
+
+        // Populate Device dropdown (Dispositivo)
+        const snameSelect = document.getElementById('sname');
+        clearOptions(snameSelect);
+        values.snameValues.forEach(value => {
+            if (value) addOption(snameSelect, value);
+        });
+
+        // Populate Priority dropdown (Priorita)
+        const classSTDSelect = document.getElementById('classSTD');
+        clearOptions(classSTDSelect);
+        values.classSTDValues.forEach(value => {
+            if (value) addOption(classSTDSelect, value);
+        });
+
+        // Populate Assigned dropdown (Assegnato)
+        const birthdaySelect = document.getElementById('birthday');
+        clearOptions(birthdaySelect);
+        values.birthdayValues.forEach(value => {
+            if (value) addOption(birthdaySelect, value);
+        });
+
+        // Populate Plant Status dropdown (Stato Impianto)
+        const fatherSelect = document.getElementById('father');
+        clearOptions(fatherSelect);
+        values.fatherValues.forEach(value => {
+            if (value) addOption(fatherSelect, value);
+        });
+
+        // Populate Ticket Status dropdown (Stato Ticket)
+        const motherSelect = document.getElementById('mother');
+        clearOptions(motherSelect);
+        values.motherValues.forEach(value => {
+            if (value) addOption(motherSelect, value);
+        });
+
+        // Populate Ticket Status dropdown (Stato Ticket)
+        const plantSelect = document.getElementById('sID13');
+        clearOptions(plantSelect);
+        values.plantValues.forEach(value => {
+            if (value) addOption(plantSelect, value);
+        });
+
+
+
+
+
+    }).getDropdownValues();
+}
+
+// Helper function to clear dropdown options
+function clearOptions(select) {
+    select.innerHTML = '<option value=""> </option>';
+}
+
+// Helper function to add option to dropdown
+function addOption(select, value) {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = value;
+    select.appendChild(option);
+}
+
+// Call loadDropdownValues when the page loads
+document.addEventListener('DOMContentLoaded', loadDropdownValues);
+
+
+  // Helper functions
+  function populateNameDropdown(names) {
+    const nameDropdown = document.getElementById('nameDropdown');
+    resetNameDropdown();
+    names.forEach(name => {
+      const option = document.createElement('option');
+      option.textContent = name;
+      option.value = name;
+      nameDropdown.appendChild(option);
+    });
+    nameDropdown.disabled = false;
+  }
+
+  function populateEmailField(email) {
+    document.getElementById('emailField').value = email;
+  }
+
+  function resetNameDropdown() {
+    const nameDropdown = document.getElementById('nameDropdown');
+    nameDropdown.innerHTML = '<option value="">-- Select --</option>';
+    nameDropdown.disabled = true;
+  }
+
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var textarea = document.getElementById('height');
+    var textarea2 = document.getElementById('height');
+    textarea.addEventListener('input', autoResize, false);
+    textarea2.addEventListener('input', autoResize, false);
+
+    function autoResize() {
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
+    }
+  });
+
+  
+
+
+  function printRowData(element) {
+    // Get the row data from the table
+    const row = $(element).closest('tr');
+    const table = row.closest('table').DataTable();
+    const rowData = table.row(row).data();
+    
+    // Now call printRow with the clean data
+    printRow(rowData);
+ }
+
+
+
+  function getCurrentDateTimeItaly() {
+    // Create a new Date object for the current time
+    const now = new Date();
+    
+    // Convert to Italy's locale string with options for year, month, day, hour, minute, second
+    // Note: 'it-IT' is the locale for Italy
+    const options = {
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      hour12: false, // Use 24-hour format
+      timeZone: 'Europe/Rome' // Italy's time zone
+    };
+
+    const dateTimeItaly = now.toLocaleString('it-IT', options);
+
+    // Format to YYYY-MM-DD HH:MM:SS
+    // The toLocaleString might return the date in DD/MM/YYYY, HH:MM:SS format, so we need to rearrange it.
+    const [date, time] = dateTimeItaly.split(', ');
+    const [day, month, year] = date.split('/');
+    const formattedDateTime = `${year}-${month}-${day} ${time}`;
+
+    return formattedDateTime;
+  }
+
+  
+
+
+
+  function resetform() {
+    document.getElementById("myform").reset(); // Reset the form
+    // Reset textarea specifically
+    document.getElementById("fname").value = '';
+    document.getElementById("weight").value = '';
+    document.getElementById("height").value = '';
+
+  }
+
+
+
+  function getWhatsAppRecipients() {
+    try {
+      const ss = SpreadsheetApp.getActiveSpreadsheet();
+      const sheet = ss.getSheetByName('Database Form');
+      
+      // Get data from columns C, D, F, G
+      const range = sheet.getRange('C2:G' + sheet.getLastRow());
+      const values = range.getValues();
+      
+      // Format data and filter out empty rows
+      return values
+        .filter(row => row[0] && row[1] && row[3]) // Check if category, name, and number exist
+        .map(row => {
+          // Determine type based on category or number format
+          let type = 'group';
+          if (row[0] === 'Internal' || String(row[3]).includes('person')) {
+            type = 'person';
+          }
+          
+          return {
+            category: row[0],    // Column C (Client/Tecnico/Internal)
+            name: row[1],        // Column D (Name)
+            number: row[3],      // Column F (Number/ID)
+            type: type          // Determined based on category/number
+          };
+        });
+
+    } catch (error) {
+      Logger.log('Error in getWhatsAppRecipients:', error);
+      return [];
+    }
+ }
+
+  function sendWhatsAppMessage(apiData) {
+  try {
+    const url = 'https://7103.api.greenapi.com/waInstance7103843365/sendMessage/0a5de9e314b3412a847b6a7de3df105fcf4a1039db56429cb3';
+    const options = {
+      'method': 'post',
+      'headers': {
+        'User-Agent': 'GREEN-API_POSTMAN/1.0',
+        'Content-Type': 'application/json'
+      },
+      'payload': JSON.stringify({
+        chatId: apiData.chatId,
+        message: apiData.message
+      }),
+      'muteHttpExceptions': true
+    };
+    
+    const response = UrlFetchApp.fetch(url, options);
+    const responseCode = response.getResponseCode();
+    
+    if (responseCode === 200) {
+      return { success: true };
+    } else {
+      return { 
+        success: false, 
+        error: 'API returned status code: ' + responseCode 
+      };
+    }
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error.toString() 
+    };
+  }
+  }
+
+  function initializeWhatsAppModal(message) {
+    try {
+        // Set message preview
+        const messagePreview = document.getElementById('messagePreview');
+        if (messagePreview) {
+            messagePreview.value = message;
+        }
+
+        // Reset form
+        const form = document.getElementById('whatsappForm');
+        if (form) form.reset();
+
+        // Setup dropdowns with stored data
+        setupMessageTypeDropdown(globalData.recipients);
+
+        // Show modal
+        const whatsappModal = new bootstrap.Modal(document.getElementById('whatsappModal'));
+        whatsappModal.show();
+
+    } catch (error) {
+        console.error('Error initializing WhatsApp modal:', error);
+        alert('Error opening WhatsApp modal. Please try again.');
+    }
+  }
+
+
+
+  // Handle form submission
+  // Handle form submission
+  // In javascript.html, update the form submit handler
+document.getElementById('whatsappForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const messageType = document.getElementById('messageType').value;
+    const recipientNumber = document.getElementById('recipientNumber').value;
+    
+    if (!messageType || !recipientNumber || !whatsappData.currentMessage) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Missing Information',
+            text: 'Please fill all required fields'
+        });
+        return;
+    }
+
+    // Show loader
+    document.getElementById('whatsapp-loader').style.display = 'block';
+
+    // Log the request data for debugging
+    console.log('Sending message to:', {
+        type: messageType,
+        number: recipientNumber
+    });
+    
+    // Prepare API request data
+    const requestData = {
+        messageType: messageType,
+        recipientNumber: recipientNumber,
+        message: whatsappData.currentMessage
+    };
+
+    // Send message via Apps Script
+    google.script.run
+        .withSuccessHandler(function(response) {
+            document.getElementById('whatsapp-loader').style.display = 'none';
+            if (response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Message sent successfully!'
+                }).then(() => {
+                    bootstrap.Modal.getInstance(document.getElementById('whatsappModal')).hide();
+                });
+            } else {
+                let errorMessage = response.error;
+                try {
+                    // Try to parse JSON error message
+                    const errorJson = JSON.parse(response.error.replace('API Error:', ''));
+                    errorMessage = errorJson.message || response.error;
+                } catch (e) {
+                    // If parsing fails, use the original error message
+                }
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Failed to send message',
+                    text: errorMessage
+                });
+            }
+        })
+        .withFailureHandler(function(error) {
+            document.getElementById('whatsapp-loader').style.display = 'none';
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error sending message: ' + error
+            });
+        })
+        .sendWhatsAppMessage(requestData);
+});
+
+  function toggleDetails() {
+    const details = document.getElementById('details');
+    if (details.classList.contains('hidden')) {
+        details.classList.remove('hidden');
+    } else {
+        details.classList.add('hidden');
+    }
+  }
+								
+  let contactsData = [];
+
+  function passEmail(el) {
+    const rowData = [];
+    const row = el.parentNode.parentNode.cells;
+    for (let i = 0; i < row.length; i++) {
+        rowData.push(row[i].innerText);
+    }
+    return rowData;
+ }   
+    
+
+
+  // Function to handle email button click in the table
+  function emailstat(el) {
+      const row = $(el).closest('tr');
+      const table = row.closest('table').DataTable();
+      const rowData = table.row(row).data();
+      window.currentRowData = rowData;
+      $('#emailPopupModal').modal('show');
+  }
+
+  // Send email when the "Send Email" button is clicked
+
+  document.getElementById('sendEmailButton').addEventListener('click', function() {
+    // Prevent multiple clicks
+    if (isSending) return;
+
+    const email = document.getElementById('emailField').value;
+    if (!email) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Please select a valid email before sending.'
+        });
+        return;
+    }
+
+    const rowData = window.currentRowData;
+    if (!rowData) {
+        console.error('No row data available');
+        return;
+    }
+
+    // Construct email body with current row data
+    const emailBody = `
+        *Estrato creato il:* ${getCurrentDateTimeItaly()}\n\n
+        *TCK Manutenzione No:* ${rowData[1]} ${rowData[2]}, aperto il ${rowData[0]}\n\n
+        *TCK:* ${rowData[1]}\n\n
+        *Impianto:* ${rowData[2]}\n\n
+        *Priorità:* ${rowData[3]}\n\n
+        *Responsabile Interno:* ${rowData[4]}\n\n
+        *Programmato il:* ${rowData[5]}\n\n
+        *Dispositivi:* ${rowData[6]}\n\n
+        *Problemi:* ${rowData[7]}\n\n
+        *Ultimo Aggiornamento:* ${rowData[8]}\n\n
+        *Tecnico:* ${rowData[9]}\n\n
+        *Stato Impianto:* ${rowData[10]}\n\n
+        *Stato Ticket:* ${rowData[11]}\n\n
+        *Istoria:* ${rowData[12]}\n\n
+        *Aggiornamento:* ${rowData[13]}\n\n
+        *Link Drive:* ${rowData[14]}
+    `;
+
+    // Show spinner and disable button
+    isSending = true;
+    const sendButton = document.getElementById('sendEmailButton');
+    const originalText = sendButton.innerHTML;
+    sendButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+    sendButton.disabled = true;
+
+    // Send the email with the row data as the body
+    google.script.run
+        .withSuccessHandler(function() {
+            // Reset button state
+            isSending = false;
+            sendButton.innerHTML = originalText;
+            sendButton.disabled = false;
+
+            Swal.fire({
+                position: 'center',
+                icon: 'success',
+                title: 'Email sent successfully!',
+                showConfirmButton: false,
+                timer: 1500
+            });
+            $('#emailPopupModal').modal('hide');
+        })
+        .withFailureHandler(function(error) {
+            // Reset button state
+            isSending = false;
+            sendButton.innerHTML = originalText;
+            sendButton.disabled = false;
+
+            console.error('Email send error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed to send email',
+                text: 'Please try again later.'
+            });
+        })
+        .sendEmailOnButton(rowData, getCurrentDateTimeItaly(), email);
+  });
+
+
+    // Updated editData function
+  function editData(el) {
+    // Reset form and loader state first
+    resetform();
+    document.getElementById('spin-loader').style.display = "none";
+    document.getElementById('btn-submit').style.display = "block";
+    
+    const modalElement = document.getElementById('modelEdit');
+    const modal = new bootstrap.Modal(modalElement);
+    
+    // Show modal immediately
+    modal.show();
+    
+    // Get row data
+    const row = $(el).closest('tr');
+    const id = row.find('td:eq(1)').text();
+
+    // Load data into modal
+    google.script.run
+        .withSuccessHandler(function(response) {
+            if (response) {
+                document.getElementById('sID').value = response[1];
+                document.getElementById('sID13').value = response[2];
+                document.getElementById('classSTD').value = response[3];
+                document.getElementById('room').value = response[4];
+                document.getElementById('gender1').value = response[5];
+                document.getElementById('sname').value = response[6];
+                document.getElementById('fname').value = response[7];
+                document.getElementById('lname').value = response[8];
+                document.getElementById('birthday').value = response[9];
+                document.getElementById('father').value = response[10];
+                document.getElementById('mother').value = response[11];
+
+                // Format the history (Istoria) field
+                const historyHtml = response[12];
+                const formattedHistory = formatHistoryContent(historyHtml);
+                document.getElementById('weight').value = formattedHistory;
+
+
+                // Auto-resize textareas
+                autoResizeTextArea('weight');
+                autoResizeTextArea('height');
+            }
+        })
+        .withFailureHandler(function(error) {
+            console.error('Error:', error);
+            modal.hide();
+        })
+        .readId(id);
+ }
+
+  // Handle modal close
+  document.addEventListener('DOMContentLoaded', function() {
+      const modalElement = document.getElementById('modelEdit');
+      
+      if (modalElement) {
+          modalElement.addEventListener('hidden.bs.modal', function() {
+              document.getElementById('myform').reset();
+          });
+      }
+  });
+
+  function formatHistoryContent(htmlContent) {
+    try {
+        // Create a temporary div to parse HTML
+        const temp = document.createElement('div');
+        temp.innerHTML = htmlContent;
+
+        // Extract and format the content
+        let formattedText = '';
+        const divs = temp.querySelectorAll('div');
+        
+        divs.forEach((div, index) => {
+            // Get all paragraphs in this div
+            const paragraphs = div.querySelectorAll('p');
+            let divText = '';
+
+            paragraphs.forEach(p => {
+                let text = p.textContent.trim();
+                
+                // Format based on content
+                if (text.includes('Aggiornato il')) {
+                    divText += '📅 ' + text + '\n';
+                } else if (text.includes('By -->')) {
+                    divText += '👤 ' + text + '\n';
+                } else if (text.includes('Stato:')) {
+                    divText += '🔄 ' + text + '\n';
+                } else if (text.startsWith('*')) {
+                    divText += '📝 ' + text + '\n';
+                } else {
+                    divText += text + '\n';
+                }
+            });
+
+            // Add separator between entries
+            formattedText += divText + (index < divs.length - 1 ? '\n-----\n' : '');
+        });
+
+        return formattedText.trim();
+    } catch (error) {
+        console.error('Error formatting history:', error);
+        return htmlContent; // Return original content if formatting fails
+    }
+}
+
+// Update autoResizeTextArea function
+function autoResizeTextArea(elementId) {
+    const textarea = document.getElementById(elementId);
+    if (textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = (textarea.scrollHeight + 2) + 'px';
+    }
+}
+
+
+  // Function to update user info
+  function updateUserInfo() {
+      try {
+          // Get current timestamp in Italian format
+          const now = new Date();
+          const dateStr = now.toLocaleString('it-IT', {
+              timeZone: 'Europe/Rome',
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              hour12: false
+          });
+
+          // Get username from parent window or session
+          let username = 'Guest';
+          if (window.parent && window.parent.CURRENT_USER) {
+              username = window.parent.CURRENT_USER;
+          }
+
+          // Update the user-info div if it exists
+          const userInfoDiv = document.querySelector('.user-info');
+          if (userInfoDiv) {
+              userInfoDiv.textContent = `${dateStr} | ${username}`;
+          }
+
+      } catch (e) {
+          console.error('Error updating user info:', e);
+      }
+  }
+
+ 
+
+  // Helper function to auto-resize textareas
+  function autoResizeTextArea(elementId) {
+      const textarea = document.getElementById(elementId);
+      if (textarea) {
+          textarea.style.height = 'auto';
+          textarea.style.height = textarea.scrollHeight + 'px';
+      }
+  }
+
+
+  // Add this function at the start of your javascript.html
+  function cleanupModals() {
+      // Remove any existing modal backdrops
+      const modalBackdrops = document.getElementsByClassName('modal-backdrop');
+      while(modalBackdrops.length > 0) {
+          modalBackdrops[0].remove();
+      }
+      
+      // Remove modal-open class from body
+      document.body.classList.remove('modal-open');
+      document.body.style.removeProperty('padding-right');
+  }
+
+// Add event listener for modal show
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('modelEdit');
+    if (modal) {
+        modal.addEventListener('show.bs.modal', function() {
+            updateUserInfo();
+        });
+    }
+});
+
+ 
+  function onSuccess(response){
+        
+    if(response !=null){
+      document.getElementById('numSTD').value = response[0];
+      document.getElementById('sID').value = response[1];
+      document.getElementById('sID13').value = response[2];
+      document.getElementById('classSTD').value = response[3];
+      document.getElementById('room').value = response[4];
+      document.getElementById('gender1').value = response[5];
+      document.getElementById('sname').value = response[6];
+      document.getElementById('fname').value = response[7];
+      document.getElementById('lname').value = response[8];
+      document.getElementById('birthday').value = response[9];
+      document.getElementById('father').value = response[10];
+      document.getElementById('mother').value = response[11];
+      document.getElementById('weight').value = response[12];
+      document.getElementById('height').value = response[13];
+      document.getElementById('img').value = response[14];
+    }
+  }
+
+  function saveForm(obj) { 
+    event.preventDefault();
+    
+    // Show loader
+    document.getElementById('spin-loader').style.display = "block";
+    document.getElementById('btn-submit').style.display = "none";
+    
+    google.script.run
+        .withSuccessHandler(function() {
+            // Hide modal
+            $('#modelEdit').modal('hide');
+            
+            // Show success message
+            Swal.fire({
+                position: 'center',
+                icon: 'success',
+                title: 'Dati Aggiornato',
+                showConfirmButton: false,
+                timer: 1500
+            });
+            
+            // Reset form and states
+            resetform();
+            document.getElementById('spin-loader').style.display = "none";
+            document.getElementById('btn-submit').style.display = "block";
+            
+            // Refresh table
+            google.script.run.withSuccessHandler(showTable).getData();
+        })
+        .withFailureHandler(function(error) {
+            console.error('Error:', error);
+            document.getElementById('spin-loader').style.display = "none";
+            document.getElementById('btn-submit').style.display = "block";
+        })
+        .saveData(obj);
+  }
+
+
+  function delData(el){
+    const id = el.parentNode.parentNode.cells[1].innerHTML; 
+    google.script.run.withSuccessHandler(() => {
+      // Show success message using Swal, in Italian.
+      Swal.fire({
+        position: 'center',
+        icon: 'success',
+        title: 'Dati eliminati con successo!',
+        showConfirmButton: false,
+        timer: 1500
+      }).then(() => {
+        // Refresh the table after the alert, if necessary
+        google.script.run.withSuccessHandler(showTable).getData();
+      });
+    }).deleteData(id);
+  }
+
+      
+  function addData(){
+    cleanupModals();
+    // Reset textarea specifically
+    document.getElementById("fname").value = '';
+    document.getElementById("weight").value = '';
+    document.getElementById("height").value = '';
+    document.getElementById('exampleModalLabel').innerHTML = "Aggiungi Evento Monitoraggio"
+    document.getElementById('spin-loader').style.display = "none"
+    document.getElementById('btn-submit').style.display = "block"
+    document.getElementById("sID").readOnly = false;
+    updateUserInfo();
+  }
+
+
+  // Fetch category data from the backend
+  document.addEventListener('DOMContentLoaded', function() {
+
+    const modalElement = document.getElementById('modelEdit');
+    const closeButton = document.querySelector('#modelEdit .btn-close');
+    
+    // Enable close button immediately
+    if (closeButton) {
+        closeButton.addEventListener('click', function() {
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+                modal.hide();
+                resetform();
+            }
+        });
+    }
+    
+    // Handle modal events
+    modalElement.addEventListener('hidden.bs.modal', function() {
+        resetform();
+        document.getElementById('spin-loader').style.display = "none";
+        document.getElementById('btn-submit').style.display = "block";
+    });
+
+
+    // Handle category selection
+    document.getElementById('categoryDropdown').addEventListener('change', function() {
+      const category = this.value;
+      if (category) {
+        google.script.run.withSuccessHandler(populateNameDropdown).getNamesByCategory(category);
+      } else {
+        resetNameDropdown();
+      }
+    });
+
+    // Handle name selection
+    document.getElementById('nameDropdown').addEventListener('change', function() {
+      const name = this.value;
+      if (name) {
+        google.script.run.withSuccessHandler(populateEmailField).getEmailByName(name);
+      } else {
+        document.getElementById('emailField').value = '';
+      }
+    });
+
+    // Handle send email button
+    
+  });
+
+  // Helper functions
+  function populateNameDropdown(names) {
+    const nameDropdown = document.getElementById('nameDropdown');
+    resetNameDropdown();
+    names.forEach(name => {
+      const option = document.createElement('option');
+      option.textContent = name;
+      option.value = name;
+      nameDropdown.appendChild(option);
+    });
+    nameDropdown.disabled = false;
+  }
+
+  function populateEmailField(email) {
+    document.getElementById('emailField').value = email;
+  }
+
+  function resetNameDropdown() {
+    const nameDropdown = document.getElementById('nameDropdown');
+    nameDropdown.innerHTML = '<option value="">-- Select --</option>';
+    nameDropdown.disabled = true;
+  }
+  
+
+  // Add these functions to handle modal behavior
+  document.addEventListener('DOMContentLoaded', function() {
+      // Fix modal backdrop and scrolling issues
+      const modelEdit = document.getElementById('modelEdit');
+      
+      modelEdit.addEventListener('show.bs.modal', function () {
+          document.body.classList.add('modal-open');
+      });
+
+      modelEdit.addEventListener('hidden.bs.modal', function () {
+          document.body.classList.remove('modal-open');
+      });
+
+      // Ensure proper modal positioning
+      function adjustModalPosition() {
+          const modalDialog = modelEdit.querySelector('.modal-dialog');
+          if (modalDialog) {
+              const windowHeight = window.innerHeight;
+              const modalHeight = modalDialog.offsetHeight;
+              if (modalHeight < windowHeight) {
+                  modalDialog.style.marginTop = Math.max(0, (windowHeight - modalHeight) / 2) + 'px';
+              } else {
+                  modalDialog.style.marginTop = '1.75rem';
+              }
+          }
+      }
+
+      // Adjust modal position on show
+      modelEdit.addEventListener('shown.bs.modal', adjustModalPosition);
+      window.addEventListener('resize', function() {
+          if (modelEdit.classList.contains('show')) {
+              adjustModalPosition();
+          }
+      });
+  });
+
+  // Load contacts data when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Show loading spinner in the email field
+    const emailField = document.getElementById('emailField');
+    emailField.disabled = true;
+    emailField.placeholder = 'Loading contacts...';
+
+    google.script.run
+        .withSuccessHandler(function(data) {
+            contactsData = data;
+            populateCategoryDropdown();
+            emailField.disabled = false;
+            emailField.placeholder = 'Select contact...';
+        })
+        .withFailureHandler(function(error) {
+            console.error('Failed to load contacts:', error);
+            emailField.placeholder = 'Error loading contacts';
+        })
+        .getAllContacts(); // New function to get all contacts data at once
+});
+
+// Populate category dropdown with unique types
+function populateCategoryDropdown() {
+    const categoryDropdown = document.getElementById('categoryDropdown');
+    const types = [...new Set(contactsData.map(contact => contact.type))];
+    
+    categoryDropdown.innerHTML = '<option value="">-- Select Type --</option>';
+    types.forEach(type => {
+        const option = document.createElement('option');
+        option.value = type;
+        option.textContent = type;
+        categoryDropdown.appendChild(option);
+    });
+}
+
+// Handle category selection
+document.getElementById('categoryDropdown').addEventListener('change', function() {
+    const category = this.value;
+    const nameDropdown = document.getElementById('nameDropdown');
+    const emailField = document.getElementById('emailField');
+    
+    nameDropdown.innerHTML = '<option value="">-- Select Name --</option>';
+    emailField.value = '';
+    
+    if (category) {
+        const filteredContacts = contactsData.filter(contact => contact.type === category);
+        filteredContacts.forEach(contact => {
+            const option = document.createElement('option');
+            option.value = contact.name;
+            option.textContent = contact.name;
+            nameDropdown.appendChild(option);
+        });
+        nameDropdown.disabled = false;
+    } else {
+        nameDropdown.disabled = true;
+    }
+});
+
+// Handle name selection
+document.getElementById('nameDropdown').addEventListener('change', function() {
+    const name = this.value;
+    const emailField = document.getElementById('emailField');
+    
+    if (name) {
+        const contact = contactsData.find(c => c.name === name);
+        if (contact) {
+            emailField.value = contact.email;
+        }
+    } else {
+        emailField.value = '';
+    }
+});
+
+
+
+
+function createWhatsAppLink(el) {
+    try {
+        const row = $(el).closest('tr');
+        const table = row.closest('table').DataTable();
+        const rowData = table.row(row).data();
+        
+        if (!rowData) {
+            console.error('No row data found');
+            return;
+        }
+
+        // Show modal first
+        const whatsappModal = new bootstrap.Modal(document.getElementById('whatsappModal'));
+        whatsappModal.show();
+
+        // Show loading in message preview
+        document.getElementById('messagePreview').value = 'Loading...';
+        
+        // Format the history HTML content
+        const formattedHistory = formatWhatsAppHistory(rowData[12] || '');
+
+        // Create message
+        whatsappData.currentMessage = 
+            "*Estrato creato il:* ```" + getCurrentDateTimeItaly() + "```\n\n" +
+            "*TCK Manutenzione No:* ```" + rowData[1] + " " + rowData[2] + "``` , aperto il ```" + rowData[0] + "```\n\n" +
+            "*TCK:* ```" + rowData[1] + "```\n\n" +
+            "*Impianto:* ```" + rowData[2] + "```\n\n" +
+            "*Priorità:* ```" + rowData[3] + "```\n\n" +
+            "*Responsabile Interno:* ```" + rowData[4] + "```\n\n" +
+            "*Programmato il:* ```" + rowData[5] + "```\n\n" +
+            "*Dispositivi:* ```" + rowData[6] + "```\n\n" +
+            "*Problemi:* ```" + rowData[7] + "```\n\n" +
+            "*Ultimo Aggiornamento:* ```" + rowData[8] + "```\n\n" +
+            "*Tecnico:* ```" + rowData[9] + "```\n\n" +
+            "*Stato Impianto:* ```" + rowData[10] + "```\n\n" +
+            "*Stato Ticket:* ```" + rowData[11] + "```\n\n" +
+            "*Istoria:* ```" + formattedHistory + "```\n\n" +
+            "*Aggiornamento:* ```" + rowData[13] + "```\n\n" +
+            "*Link Drive:* ```" + rowData[14] + "```";
+
+        // Set message preview immediately
+        document.getElementById('messagePreview').value = whatsappData.currentMessage;
+
+        // Load recipients
+        google.script.run
+            .withSuccessHandler(function(data) {
+                whatsappData.recipients = data;
+                setupRecipientDropdowns();
+            })
+            .withFailureHandler(function(error) {
+                console.error('Error loading recipients:', error);
+                alert('Error loading recipients. Please try again.');
+            })
+            .getWhatsAppRecipients();
+
+    } catch (error) {
+        console.error('Error in createWhatsAppLink:', error);
+        alert('Error preparing WhatsApp message. Please try again.');
+    }
+}
+
+function formatWhatsAppHistory(htmlContent) {
+    try {
+        // Create a temporary div to parse HTML
+        const temp = document.createElement('div');
+        temp.innerHTML = htmlContent;
+
+        // Extract and format the content
+        let formattedText = '';
+        const divs = temp.querySelectorAll('div');
+        
+        divs.forEach((div, index) => {
+            // Get all paragraphs in this div
+            const paragraphs = div.querySelectorAll('p');
+            let divText = '';
+
+            paragraphs.forEach(p => {
+                let text = p.textContent.trim();
+                
+                // Format based on content
+                if (text.includes('Aggiornato il')) {
+                    divText += '📅 ' + text + '\n';
+                } else if (text.includes('By -->')) {
+                    divText += '👤 ' + text + '\n';
+                } else if (text.includes('Stato:')) {
+                    divText += '🔄 ' + text + '\n';
+                } else if (text.startsWith('*')) {
+                    divText += '📝 ' + text + '\n';
+                } else {
+                    divText += text + '\n';
+                }
+            });
+
+            // Add separator between entries
+            formattedText += divText + (index < divs.length - 1 ? '\n-----\n' : '');
+        });
+
+        // Clean up any remaining HTML entities or extra whitespace
+        return formattedText
+            .trim()
+            .replace(/&nbsp;/g, ' ')
+            .replace(/\n\s*\n/g, '\n')
+            .replace(/\n{3,}/g, '\n\n');
+
+    } catch (error) {
+        console.error('Error formatting WhatsApp history:', error);
+        // If formatting fails, try a simple HTML strip
+        return htmlContent
+            .replace(/<[^>]+>/g, '\n')
+            .replace(/&nbsp;/g, ' ')
+            .replace(/\n\s*\n/g, '\n')
+            .replace(/\n{3,}/g, '\n\n')
+            .trim();
+    }
+}
+
+function setupRecipientDropdowns() {
+    try {
+        const messageType = document.getElementById('messageType');
+        const recipientSelect = document.getElementById('recipientSelect');
+        const numberField = document.getElementById('recipientNumber');
+
+        // Remove existing event listeners
+        const newMessageType = messageType.cloneNode(true);
+        const newRecipientSelect = recipientSelect.cloneNode(true);
+        messageType.parentNode.replaceChild(newMessageType, messageType);
+        recipientSelect.parentNode.replaceChild(newRecipientSelect, recipientSelect);
+
+        // Reset dropdowns
+        newRecipientSelect.innerHTML = '<option value="">Select recipient</option>';
+        if (numberField) numberField.value = '';
+
+        // Handle message type change
+        newMessageType.addEventListener('change', function() {
+            const selectedType = this.value;
+            
+            // Reset recipient dropdown
+            newRecipientSelect.innerHTML = '<option value="">Select recipient</option>';
+            if (numberField) numberField.value = '';
+
+            if (!selectedType) return;
+
+            // Filter recipients based on type
+            const filteredRecipients = whatsappData.recipients.filter(r => r.type === selectedType);
+            
+            // Add filtered options
+            filteredRecipients.forEach(recipient => {
+                const option = document.createElement('option');
+                // Use the raw number/ID from the sheet
+                option.value = recipient.number;
+                option.textContent = `${recipient.category} - ${recipient.name}`;
+                newRecipientSelect.appendChild(option);
+            });
+
+            // Log available recipients for debugging
+            console.log('Filtered recipients:', filteredRecipients);
+        });
+
+        // Handle recipient selection
+        newRecipientSelect.addEventListener('change', function() {
+            if (numberField) {
+                numberField.value = this.value;
+                // Log selected value for debugging
+                console.log('Selected recipient:', this.value);
+            }
+        });
+
+    } catch (error) {
+        console.error('Error in setupRecipientDropdowns:', error);
+    }
+}
+
+function setupWhatsAppModal() {
+    try {
+        // Set message preview
+        document.getElementById('messagePreview').value = whatsappData.currentMessage;
+
+        // Reset form
+        document.getElementById('whatsappForm').reset();
+
+        // Setup message type dropdown
+        const messageType = document.getElementById('messageType');
+        const recipientSelect = document.getElementById('recipientSelect');
+        const numberField = document.getElementById('recipientNumber');
+
+        // Reset dropdowns
+        recipientSelect.innerHTML = '<option value="">Select recipient</option>';
+        if (numberField) numberField.value = '';
+
+        // Handle message type change
+        messageType.addEventListener('change', function() {
+            const selectedType = this.value;
+            
+            // Reset recipient dropdown
+            recipientSelect.innerHTML = '<option value="">Select recipient</option>';
+            if (numberField) numberField.value = '';
+
+            if (!selectedType) return;
+
+            // Filter recipients based on type
+            const filteredRecipients = whatsappData.recipients.filter(r => r.type === selectedType);
+            
+            // Add filtered options
+            filteredRecipients.forEach(recipient => {
+                const option = document.createElement('option');
+                option.value = recipient.number;
+                option.textContent = `${recipient.category} - ${recipient.name}`;
+                recipientSelect.appendChild(option);
+            });
+        });
+
+        // Handle recipient selection
+        recipientSelect.addEventListener('change', function() {
+            if (numberField) {
+                numberField.value = this.value;
+            }
+        });
+
+        // Show modal
+        const whatsappModal = new bootstrap.Modal(document.getElementById('whatsappModal'));
+        whatsappModal.show();
+
+    } catch (error) {
+        console.error('Error in setupWhatsAppModal:', error);
+        alert('Error setting up WhatsApp modal. Please try again.');
+    }
+
+}
+
+
+    // Add this to your JavaScript file
+$(document).ready(function(){
+    $('#gender1').datepicker({
+        format: 'dd/mm/yyyy',
+        startDate: '+1d',  // Start from tomorrow
+        language: 'it',
+        autoclose: true,
+        todayHighlight: true,
+        clearBtn: true
+    });
+});
+
+
+
+
+
+</script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
