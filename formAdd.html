@@ -1,0 +1,130 @@
+<!-- Add these in your HTML head section if not already present -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.it.min.js"></script>
+
+
+<!-- Modal -->
+<div class="modal" id="modelEdit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modifica</h5>
+                <button type="button" class="btn-close" id="close1" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form class="row g-2" id="myform" onsubmit="saveForm(this)">
+                    <div class="text-center mb-3">
+                        <img src="https://i.postimg.cc/jqJy4nbb/Copy-of-exmainred.png" width="80" height="80">
+                    </div>
+                    
+                    <div class="col-md-6" id="div0" style="display:none">
+                        <label for="numSTD" class="form-label">at</label>
+                        <input type="text" class="form-control" id="numSTD" name="numSTD">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="sID" class="form-label">TCK</label>
+                        <input type="text" class="form-control" id="sID" name="sID" readonly>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label for="sID13" class="form-label">Impianto</label>
+                        <select id="sID13" name="sID13" class="form-select" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="room" class="form-label">Resp.Interno</label>
+                        <select id="room" name="room" class="form-select" required>
+                            <option value=""> </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="sname" class="form-label">Dispositivo</label>
+                        <select id="sname" name="sname" class="form-select" required>
+                            <option value=""> </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="classSTD" class="form-label">Priorita</label>
+                        <select id="classSTD" name="classSTD" class="form-select" required>
+                            <option value=""> </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="birthday" class="form-label">Assegnato</label>
+                        <select id="birthday" name="birthday" class="form-select">
+                            <option value=""> </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="lname" class="form-label">Ultimo Agg.</label>
+                        <input type="text" class="form-control" id="lname" name="lname" readonly>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="gender1" class="form-label">Scadenza il</label>
+                        <div class="input-group date">
+                            <input type="text" 
+                                  class="form-control" 
+                                  id="gender1" 
+                                  name="gender1" 
+                                  required>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="fname" class="form-label">Problemi</label>
+                        <textarea class="form-control" id="fname" name="fname" rows="2" required></textarea>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="father" class="form-label">Stato Impianto</label>
+                        <select id="father" name="father" class="form-select" required>
+                            <option value=""> </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="mother" class="form-label">Stato Ticket</label>
+                        <select id="mother" name="mother" class="form-select" required>
+                            <option value=""> </option>
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="weight" class="form-label">Istoria 🕰️</label>
+                        <textarea class="form-control" id="weight" name="weight" rows="3" readonly></textarea>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="height" class="form-label">Aggiornamento 🆕</label>
+                        <textarea class="form-control" id="height" name="height" rows="3" required></textarea>
+                    </div>
+
+                    <div class="col-md-12 mb-2" style="display:none">
+                        <label for="myFile" class="form-label">student image</label>
+                        <input type="file" class="form-control" id="myFile" name="myFile">
+                    </div>
+
+                    <div class="col-12 mt-3">
+                        <div class="d-grid">
+                            <button id="btn-submit" type="submit" class="btn btn-primary">Save Data</button>
+                            <div id="spin-loader" class="text-center mt-2" style="display:none">
+                                <span class="spinner-border text-danger" role="status"></span> Please wait...
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+</div>
