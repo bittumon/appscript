@@ -1,0 +1,1375 @@
+<!-- Libraries CSS -->
+<link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/buttons/2.3.2/css/buttons.dataTables.min.css" rel="stylesheet">
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+
+<!-- Libraries JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.2/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/plug-ins/2.0.3/features/scrollResize/dataTables.scrollResize.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<!-- System Info and Filters Container -->
+<div class="filters-container">
+
+    <!-- Column Filters -->
+    <div class="column-filters mt-3">
+        <div class="filter-row">
+            <!-- Date Filter -->
+            <div class="date-filter mb-3">
+                <label>Filter by Aperto il:</label>
+                <div class="date-inputs">
+                    <input type="text" id="min" placeholder="From Date (DD-MM-YYYY)" class="date-picker">
+                    <input type="text" id="max" placeholder="To Date (DD-MM-YYYY)" class="date-picker">
+                    <button id="clearDates" class="btn btn-secondary btn-sm">Rimuovi filtri</button>
+                </div>
+            </div>
+            <!-- Priorita Filter -->
+            <div class="filter-buttons mb-3">
+                <label>Filtra per priorita:</label>
+                <div class="button-group" id="prioritaButtons">
+                    <button class="btn btn-filter" data-filter="Basso🔔">Basso🔔</button>
+                    <button class="btn btn-filter" data-filter="Media⚠️">Media⚠️</button>
+                    <button class="btn btn-filter" data-filter="Alto⛔">Alto⛔</button>
+                </div>
+            </div>
+            <!-- Stato Imp Filter -->
+            <div class="filter-buttons mb-3">
+                <label>Filtra per stato impianto:</label>
+                <div class="button-group" id="statoImpButtons">
+                    <button class="btn btn-filter" data-filter="Spento 🚩">Spento 🚩</button>
+                    <button class="btn btn-filter" data-filter="Dispositivo guasto 💢">Dispositivo guasto 💢</button>
+                    <button class="btn btn-filter" data-filter="Attessa assistenza ⏰">Attessa assistenza ⏰</button>
+                    <button class="btn btn-filter" data-filter="Disconnesso 📶">Disconnesso 📶</button>
+                </div>
+            </div>
+        </div>
+        <div class="filter-row">
+            <!-- Stato Tck Filter -->
+            <div class="filter-buttons mb-3">
+                <label>Filter by Stato Tck:</label>
+                <div class="button-group" id="statoTckButtons">
+                    <button class="btn btn-filter" data-filter="Aperto ❌">Aperto ❌</button>
+                    <button class="btn btn-filter" data-filter="Chiuso ✅️">Chiuso ✅️</button>
+                    <button class="btn btn-filter" data-filter="In Attessa ⏳">In Attessa ⏳</button>
+                    <button class="btn btn-filter" data-filter="Attessa cliente ✋🏼">Attessa cliente ✋🏼</button>
+                    <button class="btn btn-filter" data-filter="Da programmare 🔜">Da programmare 🔜</button>
+                    <button class="btn btn-filter" data-filter="In programma 👨‍🔧">In programma 👨‍🔧</button>
+                </div>
+            </div>
+
+            <div class="filter-buttons mb-3">
+              <label>Quick Date Filter:</label>
+              <div class="button-group" id="quickDateButtons">
+                  <button class="btn btn-filter" data-period="today">Oggi</button>
+                  <button class="btn btn-filter" data-period="week">Settimana</button>
+                  <button class="btn btn-filter" data-period="month">Mese</button>
+                  <button class="btn btn-filter" data-period="year">Anno</button>
+                  <button class="btn btn-filter" data-period="all">Tutti</button>
+              </div>
+            </div>
+        </div>
+
+        
+        <div class="row filters-row" id="columnFilters"></div>
+    </div>
+</div>
+
+
+<!-- Main Table -->
+<table id="example" class="display bg-light" style="width:100%">
+    <thead style="background: #0e94d4;"></thead>
+</table>
+
+<div class="modal fade" id="emailPopupModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="emailModalLabel">Send Email</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="categoryDropdown" class="form-label">Select Category</label>
+                    <select class="form-select" id="categoryDropdown">
+                        <option value="">-- Select Category --</option>
+                        <option value="Internal">Internal</option>
+                        <option value="External">External</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="nameDropdown" class="form-label">Select Recipient</label>
+                    <select class="form-select" id="nameDropdown" disabled>
+                        <option value="">-- Select --</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="emailField" class="form-label">Email Address</label>
+                    <input type="email" class="form-control" id="emailField" readonly>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="sendEmailButton">Send Email</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.filters-container {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.user-info {
+  background: #e9ecef;
+  padding: 10px;
+  border-radius: 9px;
+  font-size: 0.9rem;
+  line-height: 1;
+  float: right; /* Aligns to the right */
+  text-align: right; /* Aligns text to the right */
+  font-weight: bold;
+}
+
+.details-row {
+    background-color: #f8f9fa;
+}
+
+tr.shown {
+    background-color: #e9ecef;
+}
+
+.details-container {
+    animation: fadeIn 0.3s ease-in-out;
+    padding: 15px;
+    background: #f9f9fa;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin: 10px;
+    max-width: 100%;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#weight, #height {
+        font-family: 'Consolas', monospace;
+        white-space: pre-wrap;
+        line-height: 1.5;
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        background-color: #f8f9fa;
+    }
+
+    /* Style for the history entries */
+    #weight {
+        font-size: 14px;
+        color: #333;
+    }
+
+    /* Add some hover effect */
+    #weight:hover, #height:hover {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+
+.detail-content {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+.updates-container {
+    margin-top: 15px;
+}
+
+.details-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+
+.detail-label {
+    padding: 8px;
+    border: 1px solid #ddd;
+    background: #f1f1f1;
+    width: 15%;
+}
+
+
+.filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 15px;
+    align-items: flex-start; /* This helps align all filters */
+}
+
+.date-filter {
+    flex: 1;
+}
+
+.filter-buttons {
+    flex: 1;
+}
+
+.date-inputs {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.date-inputs input {
+    padding: 6px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    width: 160px;
+}
+
+.filters-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin: 0;
+}
+
+.filter-group {
+    flex: 1;
+    min-width: 200px;
+    max-width: 250px;
+}
+
+.filter-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: #495057;
+    font-weight: bold;
+}
+
+.filter-group input {
+    width: 100%;
+    padding: 6px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.btn-filter {
+    background: #d5dee6;
+    color: #000000;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.btn-filter:hover {
+    background: #5a6268;
+}
+
+.btn-filter.active {
+    background-color: #0d6efd !important;
+    color: white !important;
+    border-color: #0d6efd !important;
+}
+
+.btn-secondary {
+    background: #d5dee6;
+    color: black;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.spinner-border {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    vertical-align: text-bottom;
+    border: 0.2em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border .75s linear infinite;
+}
+
+@keyframes spinner-border {
+    to { transform: rotate(360deg); }
+}
+
+#quickDateButtons .btn-filter {
+    background: #d5dee6;
+    color: #000000;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    margin-right: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#quickDateButtons .btn-filter.active {
+    background-color: #d5dee6;
+    color: white;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+#quickDateButtons .btn-filter:hover {
+    background-color: #5a6268;
+}
+
+#quickDateButtons .btn-filter.active:hover {
+    background-color: #0b5ed7;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+}
+
+
+.action-buttons i {
+    cursor: pointer;
+    font-size: 1.3rem;
+    padding: 2px;
+    transition: transform 0.2s;
+}
+
+.action-buttons i:hover {
+    transform: scale(1.1);
+}
+
+.update-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.update-item {
+    flex: 1;
+    min-width: 300px;
+    max-width: 400px;
+}
+
+.details-container div::-webkit-scrollbar {
+    width: 8px;
+}
+
+.details-container div::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.details-container div::-webkit-scrollbar-thumb {
+    background: #0e94d4;
+    border-radius: 4px;
+}
+
+.details-container div::-webkit-scrollbar-thumb:hover {
+    background: #0b7ab0;
+}
+
+.mt-3 { margin-top: 1rem; }
+.mb-3 { margin-bottom: 1rem; }
+
+@media (max-width: 768px) {
+    .date-inputs {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .update-row {
+        flex-direction: column;
+    }
+    .filter-buttons {
+        flex: 1 1 100%; /* Full width on small screens */
+    }
+    
+    .date-inputs input {
+        width: 100%;
+    }
+    .update-item {
+        min-width: 100%;
+    }
+    
+    .filter-group {
+        min-width: 100%;
+    }
+}
+
+/* Add responsive handling */
+@media (max-width: 1200px) {
+    .filter-buttons {
+        flex: 1 1 calc(50% - 15px); /* Two columns on medium screens */
+    }
+}
+
+
+</style>
+
+<script>
+
+
+let dataTable;
+
+function parseGSDate(dateStr) {
+    if (!dateStr) return null;
+    
+    let parts;
+    if (dateStr.includes('/')) {
+        parts = dateStr.split('/');
+    } else if (dateStr.includes('-')) {
+        parts = dateStr.split('-');
+    } else {
+        return null;
+    }
+    
+    if (parts.length !== 3) return null;
+    
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1;
+    const year = parseInt(parts[2], 10);
+    
+    const date = new Date(year, month, day);
+    return isNaN(date.getTime()) ? null : date;
+}
+
+function formatDateForDisplay(dateStr) {
+    if (!dateStr) return '';
+    const date = parseGSDate(dateStr);
+    if (!date || isNaN(date.getTime())) return dateStr;
+    return date.toLocaleDateString('it-IT', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    }).replace(/\//g, '-');
+}
+
+
+$(document).ready(function() {
+    google.script.run.withSuccessHandler(showTable).getData();
+  
+});
+
+
+function showTable(result) {
+    if (dataTable) {
+        dataTable.destroy();
+    }
+
+    // Create column filters with correct mapping
+    const filterContainer = document.getElementById('columnFilters');
+    filterContainer.innerHTML = '';
+
+    const columnMapping = [
+        { name: 'TCK', index: 1 },
+        { name: 'Impianto', index: 2 },
+        { name: 'Priorita', index: 3 },
+        { name: 'Resp.Interno', index: 4 },
+        { name: 'Dispositivi', index: 6 },
+        { name: 'Assegnato', index: 9 },
+        { name: 'Stato Imp', index: 10 },
+        { name: 'Stato Tck', index: 11 }
+    ];
+
+    columnMapping.forEach(column => {
+        const filterGroup = document.createElement('div');
+        filterGroup.className = 'filter-group';
+        filterGroup.setAttribute('data-column-index', column.index);
+        filterGroup.innerHTML = `
+            <label>${column.name}:</label>
+            <input type="text" placeholder="Filter ${column.name}">
+        `;
+        filterContainer.appendChild(filterGroup);
+    });
+
+    dataTable = $('#example').DataTable({
+        data: result,
+        scrollY: '150vh',
+        scrollResize: true,
+        scrollCollapse: true,
+        paging: true,
+        scrollX: true,
+        destroy: true,
+        responsive: true,
+        autoWidth: false,
+        columns: [
+            { 
+                title: 'Aperto il',
+                render: function(data, type) {
+                    if (type === 'display') {
+                        return formatDateForDisplay(data);
+                    }
+                    if (type === 'sort') {
+                        const date = parseGSDate(data);
+                        return date ? date.getTime() : 0;
+                    }
+                    return data;
+                }
+            },
+            { title: 'TCK' },
+            { title: 'Impianto' },
+            { title: 'Priorita' },
+            { title: 'Resp.Interno' },
+            { 
+                title: 'Scadenza il',
+                render: function(data, type) {
+                    if (type === 'display') {
+                        return formatDateForDisplay(data);
+                    }
+                    if (type === 'sort') {
+                        const date = parseGSDate(data);
+                        return date ? date.getTime() : 0;
+                    }
+                    return data;
+                }
+            },
+            { title: 'Dispositivi' },
+            { title: 'Problemi', visible: false },
+            { 
+                title: 'Ultimo Agg',
+                render: function(data, type) {
+                    if (type === 'display') {
+                        return formatDateForDisplay(data);
+                    }
+                    if (type === 'sort') {
+                        const date = parseGSDate(data);
+                        return date ? date.getTime() : 0;
+                    }
+                    return data;
+                }
+            },
+            { title: 'Assegnato' },
+            { title: 'Stato Imp' },
+            { title: 'Stato Tck' },
+            { title: 'Istoria', visible: false },
+            { title: 'Aggiornamento', visible: false },
+            {
+                title: 'Azione',
+                render: function(data, type, row) {
+                    if (type === 'display') {
+                        return `
+                            <div class="action-buttons">
+                                ${data ? `<a href="${data}" target="_blank"><i class="bx bxs-file-jpg"></i></a>` : ''}
+                                <span class="text-warning" onclick="editData(this);" data-bs-toggle="modal" data-bs-target="#modelEdit">
+                                    <i class="bx bx-edit"></i>
+                                </span>
+                                <span class="text-primary" onclick="emailstat(this);">
+                                    <i class="bx bx-envelope"></i>
+                                </span>
+                                <span class="text-success" onclick="printRowData(this);">
+                                    <i class="bx bx-printer"></i>
+                                </span>
+                            </div>
+                        `;
+                    }
+                    return data;
+                }
+            }
+        ],
+        columnDefs: [
+            {
+                targets: [1, 3, 8, 12, 13, 14],
+                className: 'all'
+            }
+        ],
+        lengthMenu: [[10, 20, 50, -1], [10, 20, 50, 'All']],
+        pageLength: 20,
+        order: [[0, 'desc']],
+        dom: 'Bfrtip',
+        buttons: [
+            {
+              extend: 'copy',
+              text: 'Copy',
+              title: 'Estrato Ticket Manutenzione 2025',
+              messageTop: function() {
+                  const now = new Date();
+                  const dateStr = now.toLocaleString('it-IT', {
+                      timeZone: 'Europe/Rome',
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit',
+                      hour12: false
+                  });
+                  return `Data di creazione: ${dateStr} | Utente: Guest`;
+              },
+              exportOptions: {
+                  columns: [0,1,2,3,4,5,6,7,8,9,10,11,12,13],
+                  format: {
+                      body: function(data, row, column, node) {
+                          // Handle history column (index 12)
+                          if (column === 12 && data) {
+                              try {
+                                  const divs = data.match(/<div[^>]*>[\s\S]*?<\/div>/g);
+                                  if (!divs) return 'N/A';
+
+                                  let formattedText = [];
+                                  divs.forEach((div) => {
+                                      const dateMatch = div.match(/(?:Creato|Aggiornato) il ([0-9- :]+)/);
+                                      const userMatch = div.match(/[Bb]y -->\s*([^<]+)/);
+                                      const messageMatch = div.match(/<p>\* ([^<]+)<\/p>/);
+                                      const statusMatch = div.match(/stato:\s*([^<]+)/);
+
+                                      let entryText = [];
+                                      if (dateMatch) entryText.push('            ' + dateMatch[0]);
+                                      if (userMatch) entryText.push('           ' + userMatch[0]);
+                                      if (messageMatch) entryText.push('            * ' + messageMatch[1].trim());
+                                      if (statusMatch) entryText.push('           ' + statusMatch[0].trim());
+                                      
+                                      formattedText.push(entryText.join('\n'));
+                                  });
+
+                                  return formattedText.join('\n------------------------------------\n');
+                              } catch (e) {
+                                  console.error('Error parsing history:', e);
+                                  return 'Error parsing history';
+                              }
+                          }
+                          return data;
+                      }
+                  }
+              }
+          },
+          {
+              extend: 'excel',
+              text: 'Excel',
+              title: 'Estrato Ticket Manutenzione 2025',
+              messageTop: function() {
+                  const now = new Date();
+                  const dateStr = now.toLocaleString('it-IT', {
+                      timeZone: 'Europe/Rome',
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit',
+                      hour12: false
+                  });
+                  return `Data di creazione: ${dateStr} | Utente: Guest`;
+              },
+              exportOptions: {
+                  columns: [0,1,2,3,4,5,6,7,8,9,10,11,12,13],
+                  format: {
+                      body: function(data, row, column, node) {
+                          // Handle history column (index 12)
+                          if (column === 12 && data) {
+                              try {
+                                  const divs = data.match(/<div[^>]*>[\s\S]*?<\/div>/g);
+                                  if (!divs) return 'N/A';
+
+                                  let formattedText = [];
+                                  divs.forEach((div) => {
+                                      const dateMatch = div.match(/(?:Creato|Aggiornato) il ([0-9- :]+)/);
+                                      const userMatch = div.match(/[Bb]y -->\s*([^<]+)/);
+                                      const messageMatch = div.match(/<p>\* ([^<]+)<\/p>/);
+                                      const statusMatch = div.match(/stato:\s*([^<]+)/);
+
+                                      let entryText = [];
+                                      if (dateMatch) entryText.push('            ' + dateMatch[0]);
+                                      if (userMatch) entryText.push('           ' + userMatch[0]);
+                                      if (messageMatch) entryText.push('            * ' + messageMatch[1].trim());
+                                      if (statusMatch) entryText.push('           ' + statusMatch[0].trim());
+                                      
+                                      formattedText.push(entryText.join('\n'));
+                                  });
+
+                                  return formattedText.join('\n------------------------------------\n');
+                              } catch (e) {
+                                  console.error('Error parsing history:', e);
+                                  return 'Error parsing history';
+                              }
+                          }
+                          return data;
+                      }
+                  }
+              },
+              customize: function(xlsx) {
+                  // Get the current sheet
+                  var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                  
+                  // Wrap text in all cells
+                  $('row c', sheet).attr('s', '55'); // Style 55 includes text wrapping
+              }
+          },
+          {
+            extend: 'pdfHtml5',
+            text: 'PDF',
+            orientation: 'landscape',
+            pageSize: 'A3',
+            title: '',
+            customize: function(doc) {
+                // Basic styling
+                doc.defaultStyle.fontSize = 8;
+                doc.styles.tableHeader = {
+                    fontSize: 9,
+                    bold: true,
+                    fillColor: '#0e94d4',
+                    color: 'white'
+                };
+
+                // Add header with title, date and user info
+                const now = new Date();
+                const dateStr = now.toLocaleString('it-IT', {
+                    timeZone: 'Europe/Rome',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                });
+
+                // Insert header as a table with two columns
+                doc.content.unshift({
+                    table: {
+                        widths: ['50%', '50%'],
+                        body: [[
+                            {
+                                text: 'Estratto Evento Monitoraggio',
+                                fontSize: 14,
+                                bold: true,
+                                alignment: 'left'
+                            },
+                            {
+                                text: [
+                                    { 
+                                        text: `Data di creazione: ${dateStr}`,
+                                        fontSize: 8,
+                                        color: '#666'
+                                    },
+                                    { 
+                                        text: '    |    ',
+                                        fontSize: 8,
+                                        color: '#666'
+                                    },
+                                    { 
+                                        text: `Utente: Guest`,
+                                        fontSize: 8,
+                                        color: '#666'
+                                    }
+                                ],
+                                alignment: 'right'
+                            }
+                        ]]
+                    },
+                    layout: 'noBorders',
+                    margin: [0, 0, 0, 10]
+                });
+            },
+            exportOptions: {
+                columns: [0,1,2,3,4,5,6,7,8,9,10,11,12,13],
+                format: {
+                    body: function(data, row, column, node) {
+                        // Handle history column (index 12)
+                        if (column === 12 && data) {
+                            try {
+                                const divs = data.match(/<div[^>]*>[\s\S]*?<\/div>/g);
+                                if (divs && divs.length > 0) {
+                                    const lastDiv = divs[divs.length - 1];
+                                    
+                                    // Extract information using regex
+                                    const dateMatch = lastDiv.match(/Aggiornato il ([0-9- :]+)/);
+                                    const userMatch = lastDiv.match(/By -->\s*([^<]+)/);
+                                    const messageMatch = lastDiv.match(/<p>\* ([^<]+)<\/p>/);
+                                    const statusMatch = lastDiv.match(/stato:\s*([^<]+)/);
+
+                                    // Format the extracted information
+                                    let formattedText = [];
+                                    if (dateMatch) formattedText.push('Aggiornato il ' + dateMatch[1]);
+                                    if (userMatch) formattedText.push('By: ' + userMatch[1].trim());
+                                    if (messageMatch) formattedText.push('* ' + messageMatch[1].trim());
+                                    if (statusMatch) formattedText.push('stato: ' + statusMatch[1].trim());
+
+                                    return formattedText.join('\n') || 'N/A';
+                                }
+                            } catch (e) {
+                                console.error('Error parsing history:', e);
+                            }
+                            return 'N/A';
+                        }
+                        return data;
+                    }
+                }
+            },
+            download: 'open',
+            pageMargins: [20, 40, 20, 20]
+        },
+            {
+              extend: 'pdfHtml5',
+              text: 'Stato TCK',
+              orientation: 'portrait',
+              pageSize: 'A4',
+              title: '',
+              filename: function() {
+                  const now = new Date();
+                  return 'Estratto_Evento_Monitoraggio_' + now.toISOString()
+                      .replace(/[:.]/g, '-')
+                      .replace('T', '_')
+                      .slice(0, 19);
+              },
+              customize: function(doc) {
+                  // Basic styling
+                  doc.defaultStyle.fontSize = 8;
+                  doc.styles.tableHeader = {
+                      fontSize: 9,
+                      bold: true,
+                      fillColor: '#0e94d4',
+                      color: 'white'
+                  };
+
+                  // Get current UTC date/time
+                  const now = new Date();
+                  const utcTimestamp = now.toISOString()
+                      .replace('T', ' ')
+                      .slice(0, 19);
+
+                  // Get current user (you can replace this with your user detection logic)
+                  const currentUser = document.querySelector('[data-current-user]')?.dataset.currentUser || 'Guest';
+
+                  // Insert header
+                  doc.content.unshift({
+                      table: {
+                          widths: ['50%', '50%'],
+                          body: [[
+                              {
+                                  text: 'Estratto Evento Monitoraggio',
+                                  fontSize: 14,
+                                  bold: true,
+                                  alignment: 'left'
+                              },
+                              {
+                                  text: [
+                                      { 
+                                          text: ` ${utcTimestamp}`,
+                                          fontSize: 8,
+                                          color: '#666'
+                                      },
+                                      { 
+                                          text: '\n',
+                                          fontSize: 8,
+                                          color: '#666'
+                                      },
+                                      { 
+                                          text: `Current User's Login: ${currentUser}`,
+                                          fontSize: 8,
+                                          color: '#666'
+                                      }
+                                  ],
+                                  alignment: 'right'
+                              }
+                          ]]
+                      },
+                      layout: 'noBorders',
+                      margin: [0, 0, 0, 10]
+                  });
+
+                  // Auto-adjust column widths based on content
+                  doc.content[1].table.widths = 'auto';
+                  
+                  // Set other table properties for better fit
+                  doc.content[1].table.layout = {
+                      hLineWidth: function(i, node) { return 0.5; },
+                      vLineWidth: function(i, node) { return 0.5; },
+                      hLineColor: function(i, node) { return '#aaa'; },
+                      vLineColor: function(i, node) { return '#aaa'; },
+                      paddingLeft: function(i, node) { return 4; },
+                      paddingRight: function(i, node) { return 4; },
+                      paddingTop: function(i, node) { return 2; },
+                      paddingBottom: function(i, node) { return 2; }
+                  };
+              },
+              exportOptions: {
+                  columns: [0,1,2,3,4,5,6,7,8,9],
+                  format: {
+                      header: function(data, columnIdx) {
+                          return data;
+                      }
+                  }
+              },
+              download: 'open',
+              pageMargins: [10, 40, 10, 20]
+          },
+            {
+              extend: 'print',
+              text: 'Print',
+              title: 'TCK Manutenzione Report',
+              exportOptions: {
+                  columns: [0,1,2,3,4,5,6,7,8,9,10,11,12,13],
+                  format: {
+                      body: function(data, row, column, node) {
+                          // Handle history column (index 12)
+                          if (column === 12 && data) {
+                              try {
+                                  const divs = data.match(/<div[^>]*>[\s\S]*?<\/div>/g);
+                                  if (!divs) return 'N/A';
+
+                                  let formattedText = [];
+                                  divs.forEach((div) => {
+                                      const dateMatch = div.match(/(?:Creato|Aggiornato) il ([0-9- :]+)/);
+                                      const userMatch = div.match(/[Bb]y -->\s*([^<]+)/);
+                                      const messageMatch = div.match(/<p>\* ([^<]+)<\/p>/);
+                                      const statusMatch = div.match(/stato:\s*([^<]+)/);
+
+                                      let entryText = [];
+                                      if (dateMatch) entryText.push('            ' + dateMatch[0]);
+                                      if (userMatch) entryText.push('           ' + userMatch[0]);
+                                      if (messageMatch) entryText.push('            * ' + messageMatch[1].trim());
+                                      if (statusMatch) entryText.push('           ' + statusMatch[0].trim());
+                                      
+                                      formattedText.push(entryText.join('\n'));
+                                  });
+
+                                  return formattedText.join('\n--------------------------------\n');
+                              } catch (e) {
+                                  console.error('Error parsing history:', e);
+                                  return 'Error parsing history';
+                              }
+                          }
+                          return data;
+                      }
+                  }
+              },
+              customize: function(win) {
+                  // Add custom CSS
+                  var css = `
+                      @media print {
+                          tr {
+                              page-break-inside: avoid;
+                          }
+                          table {
+                              width: 100% !important;
+                              margin: 0 !important;
+                              border-collapse: collapse !important;
+                              font-size: 8pt !important;
+                              
+                          }
+                          th, td {
+                              border: 1px solid #ddd !important;
+                              padding: 4px !important;
+                              
+                              vertical-align: top !important;
+                          }
+                          /* Column widths */
+                          table th:nth-child(1), table td:nth-child(1) { width: 5% !important; } /* Aperto il */
+                          table th:nth-child(2), table td:nth-child(2) { width: 3% !important; } /* TCK */
+                          table th:nth-child(3), table td:nth-child(3) { width: 8% !important; } /* Impianto */
+                          table th:nth-child(4), table td:nth-child(4) { width: 4% !important; } /* Priorita */
+                          table th:nth-child(5), table td:nth-child(5) { width: 8% !important; } /* Resp.Interno */
+                          table th:nth-child(6), table td:nth-child(6) { width: 6% !important; } /* Scadenza il */
+                          table th:nth-child(7), table td:nth-child(7) { width: 8% !important; } /* Dispositivi */
+                          table th:nth-child(8), table td:nth-child(8) { width: 10% !important; } /* Problemi */
+                          table th:nth-child(9), table td:nth-child(9) { width: 5% !important; } /* Ultimo Agg */
+                          table th:nth-child(10), table td:nth-child(10) { width: 8% !important; } /* Assegnato */
+                          table th:nth-child(11), table td:nth-child(11) { width: 5% !important; } /* Stato Imp */
+                          table th:nth-child(12), table td:nth-child(12) { width: 5% !important; } /* Stato Tck */
+                          table th:nth-child(13), table td:nth-child(13) { width: 25% !important; } /* Istoria */
+
+                          /* Fix text wrapping */
+                          td {
+                              word-wrap: break-word !important;
+                              max-width: 0 !important;
+                          }
+                          
+                          /* Header styling */
+                          thead th {
+                              background-color: #0e94d4 !important;
+                              color: white !important;
+                          }
+
+                          @page {
+                              size: landscape;
+                              margin: 0.1cm;
+                          }
+                      }
+                  `;
+
+                  $(win.document.head).append(`<style>${css}</style>`);
+
+                  // Add header with date and user info
+                  const dateStr = new Date().toLocaleString('it-IT', {
+                      timeZone: 'Europe/Rome',
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit',
+                      hour12: false
+                  });
+
+                  $(win.document.body).find('table')
+                      .before(`
+                          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                              <div style="text-align: right; color: #666; font-size: 9pt;">
+                                  Data di creazione: ${dateStr} 
+                              </div>
+                          </div>
+                      `);
+              }
+          }
+        ]
+    });
+
+    // Initialize date pickers
+    flatpickr('.date-picker', {
+        dateFormat: 'd-m-Y',
+        onChange: function() {
+            dataTable.draw();
+        }
+    });
+
+    // Column text filters
+    $('.filter-group input').on('keyup change', function() {
+        const columnIndex = parseInt($(this).closest('.filter-group').attr('data-column-index'));
+        dataTable.column(columnIndex).search(this.value).draw();
+    });
+
+    // Date range filter
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        const min = $('#min').val();
+        const max = $('#max').val();
+        
+        if (!min && !max) return true;
+        
+        const dateStr = data[0];
+        if (!dateStr) return true;
+        
+        const date = parseGSDate(dateStr);
+        if (!date) return true;
+        
+        const minDate = min ? parseGSDate(min.replace(/-/g, '/')) : null;
+        const maxDate = max ? parseGSDate(max.replace(/-/g, '/')) : null;
+        
+        if (minDate && date < minDate) return false;
+        if (maxDate && date > maxDate) return false;
+        
+        return true;
+    });
+
+    // Add window resize handler
+    $(window).on('resize', function() {
+        if (dataTable) {
+            dataTable.columns.adjust().draw();
+        }
+    });
+
+    // Button filters (Priorita)
+    $('#prioritaButtons .btn-filter').off('click').on('click', function() {
+        const $this = $(this);
+        $this.toggleClass('active');
+        
+        const activeFilters = $('#prioritaButtons .btn-filter.active')
+            .map(function() { return $(this).data('filter'); })
+            .get();
+        
+        dataTable.column(3).search(activeFilters.length ? activeFilters.join('|') : '', true, false).draw();
+    });
+
+    // Button filters (Stato Imp)
+    $('#statoImpButtons .btn-filter').off('click').on('click', function() {
+        const $this = $(this);
+        $this.toggleClass('active');
+        
+        const activeFilters = $('#statoImpButtons .btn-filter.active')
+            .map(function() { return $(this).data('filter'); })
+            .get();
+        
+        dataTable.column(10).search(activeFilters.length ? activeFilters.join('|') : '', true, false).draw();
+    });
+
+    // Button filters (Stato Tck)
+    $('#statoTckButtons .btn-filter').off('click').on('click', function() {
+        const $this = $(this);
+        $this.toggleClass('active');
+        
+        const activeFilters = $('#statoTckButtons .btn-filter.active')
+            .map(function() { return $(this).data('filter'); })
+            .get();
+        
+        dataTable.column(11).search(activeFilters.length ? activeFilters.join('|') : '', true, false).draw();
+    });
+
+
+    // Clear filters
+    $('#clearDates').off('click').on('click', function() {
+        // Clear date inputs
+        $('#min, #max').val('');
+        
+        // Clear column filters
+        $('.filter-group input').val('');
+        
+        // Clear all button filters including quick date filter
+        $('.btn-filter').removeClass('active');
+        
+        // Reset DataTable filters
+        dataTable.search('').columns().search('').draw();
+    });
+    
+    // Row details handler
+    $('#example tbody').off('click', 'tr').on('click', 'tr', function(e) {
+        // Ignore clicks on action buttons
+        if ($(e.target).closest('.action-buttons').length) {
+            return;
+        }
+        
+        let tr = $(this);
+        let row = dataTable.row(tr);
+
+        if (row.child.isShown()) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+        } else {
+            // Close other open rows
+            dataTable.rows().every(function() {
+                if (this.child.isShown()) {
+                    this.child.hide();
+                    $(this.node()).removeClass('shown');
+                }
+            });
+            
+            // Show this row's details
+            row.child(formatRowDetails(row.data()), 'details-row').show();
+            tr.addClass('shown');
+        }
+    });
+}
+
+// Format row details
+function formatRowDetails(rowData) {
+
+// Check if we're generating PDF
+  const isPDF = arguments[1] === 'pdf';
+
+  if (isPDF) {
+      return {
+          stack: [
+              {
+                  text: 'Problem: ' + (rowData[7] || 'N/A'),
+                  style: 'detailHeader'
+              },
+              {
+                  text: 'Aggiornamento: ' + (rowData[13] || 'N/A'),
+                  style: 'detailHeader'
+              },
+              {
+                  text: 'Additional Information:\n' + (rowData[12] || 'No additional information available'),
+                  style: 'detailContent'
+              }
+          ]
+      };
+  }
+    return `
+        <div class="details-container" style="
+            padding: 8px; 
+            background: linear-gradient(to bottom, #ffffff, #f9f9fa); 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            margin: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        ">
+            <table style="
+                width: 100%; 
+                border-collapse: separate; 
+                border-spacing: 0;
+                margin-bottom: 10px;
+                border-radius: 6px;
+                overflow: hidden;
+                border: 1px solid #e0e0e0;
+            ">
+                <tr>
+                    <td style="
+                        padding: 6px 8px; 
+                        background: #0e94d4; 
+                        color: white; 
+                        width: 15%;
+                        font-weight: bold;
+                        border-right: 1px solid #0b7ab0;
+                    ">Problem</td>
+                    <td style="
+                        padding: 6px 8px; 
+                        background: #ffffff;
+                        border-right: 1px solid #e0e0e0;
+                    ">${rowData[7] || 'N/A'}</td>
+                    <td style="
+                        padding: 6px 8px; 
+                        background: #0e94d4; 
+                        color: white; 
+                        width: 15%;
+                        font-weight: bold;
+                        border-right: 1px solid #0b7ab0;
+                    ">Aggiornamento</td>
+                    <td style="
+                        padding: 6px 8px; 
+                        background: #ffffff;
+                    ">${rowData[13] || 'N/A'}</td>
+                </tr>
+            </table>
+            <div style="margin-top: 8px;">
+                <div style="
+                    display: flex;
+                    align-items: center;
+                    background: #777b7c;
+                    color: white;
+                    padding: 6px 10px;
+                    border-radius: 4px;
+                    margin-bottom: 8px;
+                    font-weight: bold;
+                ">
+                    <svg style="margin-right: 6px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                        <polyline points="13 2 13 9 20 9"></polyline>
+                    </svg>
+                    Altri Informazione
+                </div>
+                <div style=" 
+                    margin-top: 5px;
+                    max-height: 500px;
+                    overflow-y: auto;
+                    padding: 10px;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 6px;
+                    background: #ffffff;
+                    scrollbar-width: thin;
+                    scrollbar-color: #0e94d4 #f1f1f1;
+                    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+                ">
+                    ${rowData[12] || 'No data disponibile'}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+
+function formatHistoryGrid(historyData) {
+    // Split the history items by their div containers
+    const historyItems = historyData.split('</div>').filter(item => item.trim());
+    
+    // Format each history item to maintain its styling but fit in the grid
+    return historyItems.map(item => {
+        // Clean up the item and add closing div if needed
+        item = item.trim();
+        if (!item.endsWith('</div>')) {
+            item += '</div>';
+        }
+        
+        // Wrap each item in a grid item container
+        return `
+            <div style="
+                min-width: 280px;
+                height: fit-content;
+                background-color: #f9f9f9;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                padding: 10px;
+                margin: 0;
+                break-inside: avoid;
+            ">
+                ${item}
+            </div>
+        `;
+    }).join('');
+}
+
+// Quick Date Filter functionality
+$('#quickDateButtons .btn-filter').off('click').on('click', function() {
+    const $this = $(this);
+    
+    // Remove active class from all buttons in this group
+    $('#quickDateButtons .btn-filter').removeClass('active');
+    // Add active class to clicked button
+    $this.addClass('active');
+    
+    const period = $this.data('period');
+    const today = new Date();
+    let startDate = null;
+    let endDate = new Date(today);
+    
+    // Set the time to end of day
+    endDate.setHours(23, 59, 59, 999);
+    
+    switch(period) {
+        case 'today':
+            startDate = new Date(today);
+            startDate.setHours(0, 0, 0, 0);
+            break;
+            
+        case 'week':
+            startDate = new Date(today);
+            startDate.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
+            startDate.setHours(0, 0, 0, 0);
+            break;
+            
+        case 'month':
+            startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+            break;
+            
+        case 'year':
+            startDate = new Date(today.getFullYear(), 0, 1);
+            break;
+            
+        case 'all':
+            // Clear the date filters
+            $('#min, #max').val('').trigger('change');
+            dataTable.draw();
+            return;
+    }
+    
+    if (startDate) {
+        // Format dates for the inputs (DD-MM-YYYY)
+        const formatDate = (date) => {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}-${month}-${year}`;
+        };
+        
+        // Set the date range inputs
+        $('#min').val(formatDate(startDate));
+        $('#max').val(formatDate(endDate));
+        
+        // Trigger the date range filter
+        dataTable.draw();
+    }
+});
+
+
+
+// Handle window resize for responsive table
+$(window).resize(function() {
+    if (dataTable) {
+        dataTable.columns.adjust().draw();
+    }
+});
+</script>
